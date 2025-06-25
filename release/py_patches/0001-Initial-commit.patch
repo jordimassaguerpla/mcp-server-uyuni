@@ -1,0 +1,67 @@
+From 6ed3f361bad46a55597b797d15cbbdc3714efbfd Mon Sep 17 00:00:00 2001
+From: Jordi Massaguer Pla <jmassaguerpla@suse.com>
+Date: Mon, 14 Apr 2025 16:00:15 +0200
+Subject: [PATCH 01/22] Initial commit
+
+Signed-off-by: Jordi Massaguer Pla <jmassaguerpla@suse.com>
+---
+ server.py | 47 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 47 insertions(+)
+ create mode 100644 server.py
+
+diff --git a/server.py b/server.py
+new file mode 100644
+index 0000000..defa6ee
+--- /dev/null
++++ b/server.py
+@@ -0,0 +1,47 @@
++from typing import Any
++import httpx
++from mcp.server.fastmcp import FastMCP
++import requests
++import pprint
++
++# Initialize FastMCP server
++mcp = FastMCP("mlm")
++
++@mcp.tool()
++async def get_list_of_active_systems(url: str, username: str, password: str) -> str:
++  """Get list of Active Systems installed in the mlm server accessible at the url with username and password credentials.
++  
++  Args:
++    url: URL of the mlm server
++    username: username for login to the mlm server
++    password: password for login to the mlm server
++
++  """
++  data = {"login": username, "password": password}
++  response = requests.post(url + '/rhn/manager/api/login', json=data, verify=False)
++  cookies = response.cookies
++  res2 = requests.get(url + '/rhn/manager/api/system/listSystems', cookies=cookies, verify=False)
++  return res2.json()
++
++@mcp.tool()
++async def get_cpu_of_a_system(url: str, username: str, password: str, system_id: int) -> str:
++  """Get relevant errata of a system, like advisories of Security or Bug Fixes or other data of a system.
++
++  Args:
++    url: URL of the mlm server
++    username: username for login to the mlm server
++    password: password for login to the mlm server
++    system_id: id of the system we want the errata
++
++  """
++  data = {"login": username, "password": password}
++  response = requests.post(url + '/rhn/manager/api/login', json=data, verify=False)
++  cookies = response.cookies
++  res2 = requests.get(url + '/rhn/manager/api/system/getCpu?sid=' + str(system_id), cookies=cookies, verify=False)
++  return res2.json()
++
++if __name__ == "__main__":
++  # TODO: Get username, password and url from command line, so they are not sent to the LLM
++  # Initialize and run the server
++  mcp.run(transport='stdio')
++
+-- 
+2.43.0
+

@@ -1,0 +1,26 @@
+From e095cfde62d4f3d444171137581d722ee861119f Mon Sep 17 00:00:00 2001
+From: Jordi Massaguer Pla <jmassaguerpla@suse.com>
+Date: Wed, 4 Jun 2025 11:48:34 +0200
+Subject: [PATCH 05/22] review pydoc
+
+Signed-off-by: Jordi Massaguer Pla <jmassaguerpla@suse.com>
+---
+ mcp-server-uyuni.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/mcp-server-uyuni.py b/mcp-server-uyuni.py
+index ac4a223..c298de4 100644
+--- a/mcp-server-uyuni.py
++++ b/mcp-server-uyuni.py
+@@ -40,7 +40,7 @@ async def get_list_of_active_systems() -> List[Dict[str, Any]]:
+ 
+ @mcp.tool()
+ async def get_cpu_of_a_system(system_id: int) -> Dict[str, Any]: # Changed return type hint
+-  """Retrieves detailed CPU information for a specific system.
++  """Retrieves detailed CPU information for a specific system in the Uyuni server.
+ 
+   Fetches CPU attributes such as model, core count, architecture, etc.
+ 
+-- 
+2.43.0
+
