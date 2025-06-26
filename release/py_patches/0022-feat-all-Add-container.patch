@@ -1,0 +1,70 @@
+From d38d618b1b21bbd1cc8133f88da79a485c6d1796 Mon Sep 17 00:00:00 2001
+From: Jordi Massaguer Pla <jmassaguerpla@suse.com>
+Date: Thu, 26 Jun 2025 12:13:22 +0200
+Subject: [PATCH 22/25] feat(all): Add container
+
+Build, publish and use containers so the user do not need to setup a
+python environment.
+
+Signed-off-by: Jordi Massaguer Pla <jmassaguerpla@suse.com>
+---
+ .github/workflows/docker-publish.yml | 46 ++++++++++++++++++++++++++++
+ 1 file changed, 46 insertions(+)
+ create mode 100644 .github/workflows/docker-publish.yml
+
+diff --git a/.github/workflows/docker-publish.yml b/.github/workflows/docker-publish.yml
+new file mode 100644
+index 00000000000..73860e63ebc
+--- /dev/null
++++ b/.github/workflows/docker-publish.yml
+@@ -0,0 +1,46 @@
++name: Docker Publish
++
++on:
++  push:
++    branches: [ "main" ]
++    tags: [ "v*.*.*" ]
++
++jobs:
++  build-and-push:
++    runs-on: ubuntu-latest
++    permissions:
++      contents: read
++      packages: write
++
++    steps:
++      - name: Checkout repository
++        uses: actions/checkout@v4
++
++      - name: Log in to the GitHub Container Registry
++        uses: docker/login-action@v3
++        with:
++          registry: ghcr.io
++          username: ${{ github.actor }}
++          password: ${{ secrets.GITHUB_TOKEN }}
++
++      - name: Extract metadata (tags, labels) for Docker
++        id: meta
++        uses: docker/metadata-action@v5
++        with:
++          images: ghcr.io/${{ github.repository }}
++          tags: |
++            # set latest tag for default branch
++            type=raw,value=latest,enable={{is_default_branch}}
++            # tag event-based
++            type=ref,event=branch
++            type=ref,event=pr
++            type=semver,pattern={{version}}
++            type=semver,pattern={{major}}.{{minor}}
++
++      - name: Build and push Docker image
++        uses: docker/build-push-action@v6
++        with:
++          context: .
++          push: true
++          tags: ${{ steps.meta.outputs.tags }}
++          labels: ${{ steps.meta.outputs.labels }}
+\ No newline at end of file
+-- 
+2.43.0
+
