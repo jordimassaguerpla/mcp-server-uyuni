@@ -1,0 +1,35 @@
+echo "Package name | Package in SLE16 | Version in SLE16"
+echo "-|-|-"
+primary_file="366058bff26abdd69b7242c87d4e6d38db163a40caefffef514ac5832c025145dfa7cbedaacbf968e5f3ca17956d3aa4e65f71210eedf789d7fde106fcb64662-primary.xml.zst"
+# repo="../work/galaxy/systemsmanagement\:Uyuni\:AI\:Deps\:devel\:languages\:python"
+# repo="../work/galaxy/systemsmanagement\:Uyuni\:AI\:Deps\:devel\:languages\:python\:backports"
+# repo="../work/galaxy/systemsmanagement\:Uyuni\:AI\:Deps\:science\:machinelearning\:mcp/"
+repo="../work/galaxy/systemsmanagement\:Uyuni\:AI"
+for i in ${repo};do
+  echo "Checking 1 ${i} ..." >&2
+  cd ${i}; osc update >&2
+  cd - >&2
+  for j in ${i}/*;do
+    echo "Checking 2 ${j} ..." >&2
+    cd ${j}; osc getbinaries 16.0 x86_64 >&2
+    cd - >&2
+    for k in ${j}/binaries/*.rpm;do
+      echo "Checking 3 ${k}" >&2
+      binary_file=${k}
+      rpm_name=$(basename ${binary_file} | rev | cut -d"." --complement -f1 | cut -d"." --complement -f1 | cut -d"-" --complement -f1 | cut -d"-" --complement -f1 | rev)
+      rpm_version=$(basename ${binary_file} | rev | cut -d"." --complement -f1 | cut -d"." --complement -f1 | cut -d"-" --complement -f1 | cut -d"-" -f1 | rev)
+      zstd -d -c ${primary_file}  | grep $rpm_name | grep rpm:entry >&2 
+      if [ $? -eq 0 ];then
+        zstd -d -c ${primary_file} | grep $rpm_name | grep rpm:entry | grep $rpm_version >&2
+        if [ $? -eq 0 ];then
+          echo "${rpm_name}-${rpm_version} | yes | yes"
+        else
+          echo "${rpm_name}-${rpm_version} | yes | no"
+        fi
+      else
+        echo "${rpm_name}-${rpm_version} | no | no"
+      fi
+    done
+  done
+done
+
