@@ -28,6 +28,7 @@ dependencies = [
     "mcp==1.15.0",
     "mdurl==0.1.2",
     "more-itertools==10.8.0",
+    "numpy<2.4.0",
     "openapi-core==0.19.5",
     "openapi-pydantic==0.5.1",
     "openapi-schema-validator==0.6.3",
